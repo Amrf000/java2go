@@ -26,13 +26,13 @@ type GoVar interface {
 }
 
 type GoVarData struct {
-	rcvr string
-	name string
-	goname string
-	vartype *TypeData
+	rcvr        string
+	name        string
+	goname      string
+	vartype     *TypeData
 	class_field bool
-	is_static bool
-	is_final bool
+	is_static   bool
+	is_final    bool
 }
 
 func (gvd *GoVarData) Expr() ast.Expr {
@@ -158,7 +158,7 @@ func (gvd *GoVarData) VarType() *TypeData {
 }
 
 type GoClassAttribute struct {
-	govar GoVar
+	govar  GoVar
 	suffix string
 }
 

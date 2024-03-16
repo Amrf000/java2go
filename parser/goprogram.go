@@ -28,16 +28,30 @@ func assignNewStruct(rvar GoVar, class GoMethodOwner) *GoAssign {
 	return &GoAssign{govar: rvar, tok: token.ASSIGN, rhs: rhs}
 }
 
-func fixName(name string, modifiers *grammar.JModifiers) string {
+func fixName(name string, modifiers *grammar.JModifiers, params []*grammar.JFormalParameter) string {
+	suffix := ""
+	for _, param := range params {
+		iname := param.TypeSpec.Name.String()
+		iname = strings.Replace(iname, "*", "", -1)
+		if param.Dims > 0 {
+			suffix += "Arr"
+			suffix += iname
+		} else {
+			suffix += iname
+		}
+
+	}
 	if name != "" && modifiers != nil {
 		if modifiers.IsSet(grammar.ModPrivate) {
-			return strings.ToLower(name[:1]) + name[1:]
+			return strings.ToLower(name[:1]) + name[1:] + suffix
 		} else if modifiers.IsSet(grammar.ModPublic) {
-			return strings.ToUpper(name[:1]) + name[1:]
+			return strings.ToUpper(name[:1]) + name[1:] + suffix
+		} else if modifiers.IsSet(grammar.ModProtected) {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
 		}
 	}
 
-	return name
+	return name + suffix
 }
 
 func singleStatement(name string, stmts []ast.Stmt) (ast.Stmt, bool) {
@@ -820,12 +834,38 @@ type GoClassAlloc struct {
 	body      []GoStatement
 }
 
+func fixNameEx2(name string, modifier int, params []GoExpr) string {
+	suffix := ""
+
+	for _, param := range params {
+		if param.VarType() == nil {
+			continue
+		}
+		tp := strings.Replace(param.VarType().String(), "[]", "Arr", -1)
+		tp = strings.Replace(tp, "*", "", -1)
+		if tp == "string" {
+			tp = "String"
+		}
+		suffix += tp
+	}
+
+	if name != "" {
+		if modifier == grammar.ModPrivate {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModPublic {
+			return strings.ToUpper(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModProtected {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		}
+	}
+
+	return name + suffix
+}
 func (gca *GoClassAlloc) Expr() ast.Expr {
 	var funexpr ast.Expr
 	var args []ast.Expr
 
-	funexpr = ast.NewIdent(gca.method.GoName())
-
+	name := gca.method.GoName()
 	if gca.args != nil && len(gca.args) > 0 {
 		args = make([]ast.Expr, len(gca.args))
 
@@ -833,7 +873,8 @@ func (gca *GoClassAlloc) Expr() ast.Expr {
 			args[i] = arg.Expr()
 		}
 	}
-
+	name = fixNameEx2(name, grammar.ModPublic, gca.args)
+	funexpr = ast.NewIdent(name)
 	// ignoring class body
 
 	return &ast.CallExpr{Fun: funexpr, Args: args}
@@ -1006,6 +1047,8 @@ func (cls *GoClassDefinition) Constants() []ast.Decl {
 }
 
 func (cls *GoClassDefinition) createConstructor(gp *GoProgram) *GoClassMethod {
+	gp.pkgname = cls.name
+	//
 	gs := &GoState{program: gp, class: cls}
 
 	// initialize receiver variable
@@ -1032,7 +1075,8 @@ func (cls *GoClassDefinition) createConstructor(gp *GoProgram) *GoClassMethod {
 	body := &GoBlock{stmts: stmts}
 
 	// create the constructor method
-	m := &GoClassMethod{class: cls, name: cls.name, goname: "New" + cls.name,
+	goname := "New" + cls.name
+	m := &GoClassMethod{class: cls, name: cls.name, goname: goname,
 		rcvr: rcvr, method_type: mt_constructor, body: body}
 
 	// add new constructor
@@ -1115,6 +1159,7 @@ func (cls *GoClassDefinition) internalizeVarInits(gp *GoProgram) {
 	for _, key := range cls.methods.SortedKeys() {
 		for _, m := range cls.methods.MethodList(key) {
 			if m.MethodType() == mt_constructor {
+				gp.pkgname = cls.name
 				ctors = append(ctors, m)
 			}
 		}
@@ -1369,16 +1414,23 @@ func NewGoClassMethod(class GoMethodOwner, gs *GoState, jmth *grammar.JMethodDec
 	} else {
 		mtype = mt_method
 	}
+	gs.Program().addImport("java2go/test/utils", "")
 
 	name := jmth.Name
-	goname := fixName(jmth.Name, jmth.Modifiers)
+	goname := fixName(jmth.Name, jmth.Modifiers, nil)
 	if mtype == mt_constructor {
-		name = "New" + name
-		goname = "New" + goname
+		name = fixName("New"+name, jmth.Modifiers, jmth.FormalParams)
+		goname = fixName("New"+goname, jmth.Modifiers, jmth.FormalParams)
 	} else if mtype == mt_static && goname == "Main" {
-		goname = "main"
+		goname = class.Name() + "_main"
 		mtype = mt_main
+	} else {
+		goname = fixName(jmth.Name, jmth.Modifiers, jmth.FormalParams)
+		name = fixName(jmth.Name, jmth.Modifiers, jmth.FormalParams)
+		jmth.Name = name
 	}
+
+	fmt.Printf("NewGoClassMethod(name:%s,goname:%s)\n", name, goname)
 
 	gs2 := NewGoState(gs)
 
@@ -1433,7 +1485,7 @@ func NewGoClassMethod(class GoMethodOwner, gs *GoState, jmth *grammar.JMethodDec
 			jmth.TypeSpec.TypeArgs, jmth.TypeSpec.Dims)
 	}
 
-	body := analyzeBlock(gs2, class, jmth.Block)
+	body := analyzeBlock(gs2, class, jmth.Block, jmth.FormalParams)
 
 	mthd := &GoClassMethod{class: class, name: name, goname: goname,
 		typedata: typedata, rcvr: rvar, method_type: mtype, params: params,
@@ -1949,7 +2001,8 @@ func (gsc *GoNewStruct) Stmts() []ast.Stmt {
 	}
 
 	rhs := make([]ast.Expr, 1)
-	rhs[0] = &ast.CallExpr{Fun: ast.NewIdent("New" + gsc.cls.Name()),
+	nm := fixNameEx("New"+gsc.cls.Name(), grammar.ModPublic, gsc.args)
+	rhs[0] = &ast.CallExpr{Fun: ast.NewIdent(nm),
 		Args: args}
 
 	return []ast.Stmt{&ast.AssignStmt{Lhs: lhs, Tok: token.ASSIGN,
@@ -3402,6 +3455,8 @@ func (key *GoKeyword) Ident() *ast.Ident {
 		return ast.NewIdent(key.name)
 	} else if key.name == "this" {
 		return ast.NewIdent("this")
+	} else if key.name == "super" {
+		return ast.NewIdent("super")
 	}
 	log.Printf("//ERR// Not converting keyword %s\n", key.name)
 	return ast.NewIdent(fmt.Sprintf("<<unimp_key_%s>>", key.name))
@@ -3883,8 +3938,25 @@ func (ma *GoMethodAccessExpr) Expr() ast.Expr {
 	if ma.method == nil {
 		fun = ma.expr.Expr()
 	} else {
-		fun = &ast.SelectorExpr{X: ma.expr.Expr(),
-			Sel: ast.NewIdent(ma.method.Name())}
+		switch expr := ma.expr.(type) {
+		case *GoKeyword:
+			if expr.name == "super" {
+				fun = &ast.SelectorExpr{X: ast.NewIdent("rcvr." + ma.method.Class().Super().Name()),
+					Sel: ast.NewIdent(fixNameEx(ma.method.Name(), grammar.ModPublic, ma.args))}
+			} else {
+				if expr.name == "this" {
+					fun = &ast.SelectorExpr{X: ast.NewIdent("rcvr"),
+						Sel: ast.NewIdent(fixNameEx(ma.method.Name(), grammar.ModPublic, ma.args))}
+				} else {
+					fun = &ast.SelectorExpr{X: ma.expr.Expr(),
+						Sel: ast.NewIdent(ma.method.Name())}
+				}
+			}
+		case *GoCastType:
+			fun = &ast.TypeAssertExpr{X: &ast.Ident{Name: expr.target.(*GoVarData).Name()},
+				Type: &ast.Ident{Name: expr.casttype.vclass}}
+		}
+
 	}
 
 	return &ast.CallExpr{Fun: fun, Args: ma.args.ExprList()}
@@ -4035,9 +4107,41 @@ type GoMethodAccessVar struct {
 	args   *GoMethodArguments
 }
 
+func fixNameEx(name string, modifier int, params *GoMethodArguments) string {
+	suffix := ""
+	if params != nil {
+		for _, param := range params.args {
+			if param.VarType() == nil {
+				continue
+			}
+			tp := strings.Replace(param.VarType().String(), "[]", "Arr", -1)
+			tp = strings.Replace(tp, "*", "", -1)
+			if tp == "string" {
+				tp = "String"
+			}
+			suffix += tp
+		}
+	}
+
+	if name != "" {
+		if modifier == grammar.ModPrivate {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModPublic {
+			return strings.ToUpper(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModProtected {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		}
+	}
+
+	return name + suffix
+}
 func (ma *GoMethodAccessVar) Expr() ast.Expr {
+	name := ma.method.Name()
+	name = fixNameEx(name, grammar.ModPublic, ma.args)
 	fun := &ast.SelectorExpr{X: ma.govar.Expr(),
-		Sel: ast.NewIdent(ma.method.Name())}
+		Sel: ast.NewIdent(name)}
+
+	ma.method.SetGoName(fixNameEx(ma.method.GoName(), grammar.ModPublic, ma.args))
 
 	return &ast.CallExpr{Fun: fun, Args: ma.args.ExprList()}
 }
@@ -5078,19 +5182,30 @@ func (gp *GoProgram) setPackage(pgm *grammar.JProgramFile) {
 }
 
 func (gp *GoProgram) Write(topdir string) error {
-	var dirpath string
-	if gp.pkgname == "" || gp.pkgname == "main" {
-		dirpath = topdir
+	//var dirpath string
+	//if gp.pkgname == "" || gp.pkgname == "main" {
+	//	dirpath = topdir
+	//} else {
+	//	dirpath = path.Join(topdir, gp.pkgname)
+	//}
+
+	//if dirpath != "" {
+	//	if err := os.MkdirAll(dirpath, os.ModeDir|0755); err != nil {
+	//		return err
+	//	}
+	//}
+	newdir := ""
+	if len(topdir) > 0 {
+		newdir = path.Join(topdir, path.Dir(gp.name), strings.Replace(path.Base(gp.name), ".go", "", -1))
 	} else {
-		dirpath = path.Join(topdir, gp.pkgname)
+		newdir = path.Join(path.Dir(gp.name), strings.Replace(path.Base(gp.name), ".go", "", -1))
 	}
 
-	if err := os.MkdirAll(dirpath, os.ModeDir|0755); err != nil {
+	if err := os.MkdirAll(newdir, os.ModeDir|0755); err != nil {
 		return err
 	}
-
-	path := path.Join(dirpath, gp.name)
-	fd, err := os.Create(path)
+	ipath := path.Join(newdir, path.Base(gp.name))
+	fd, err := os.Create(ipath)
 	if err != nil {
 		return err
 	}
@@ -5421,12 +5536,41 @@ func (gs *GoState) addClassDecl(parent GoMethodOwner, jcls *grammar.JClassDecl) 
 	gs2 := NewGoState(gs)
 	gs2.class = cls
 
+	//// Ternary
+	//{
+	//	//ifstmt := &GoIfElse{cond: analyzeExpr(gs, owner, ifelse.Cond),
+	//	//	ifblk: ifblk}
+	//	var ifelse = GoIfElse{}
+	//	var stmts []GoStatement
+	//	stmts = append(stmts, &ifelse)
+	//	typedata := gs.Program().createTypeData(jmth.TypeSpec.Name,
+	//		jmth.TypeSpec.TypeArgs, jmth.TypeSpec.Dims)
+	//	m := &GoClassMethod{class: cls, name: "ternary", goname: "ternary",
+	//		rcvr: nil, method_type: mt_static, body: &GoBlock{stmts: stmts},
+	//		typedata: typedata}
+	//	cls.AddMethod(m)
+	//}
+
+	// 先建符号表
+	//for _, jobj := range jcls.Body {
+	//	switch j := jobj.(type) {
+	//	case *grammar.JClassBody:
+	//		analyzeClassBodySymbol(gs2, cls, j)
+	//	case *grammar.JBlock:
+	//		analyzeBlockSymbol(gs2, cls, j)
+	//	case *grammar.JEmpty:
+	//		// do nothing
+	//	default:
+	//		grammar.ReportCastError("JClassDecl", jobj)
+	//	}
+	//}
+	// 后分析
 	for _, jobj := range jcls.Body {
 		switch j := jobj.(type) {
 		case *grammar.JClassBody:
 			analyzeClassBody(gs2, cls, j)
 		case *grammar.JBlock:
-			blk := analyzeBlock(gs2, cls, j)
+			blk := analyzeBlock(gs2, cls, j, nil)
 			if blk != nil {
 				m := &GoClassMethod{class: cls, name: "init", goname: "init",
 					rcvr: nil, method_type: mt_static, body: blk}
@@ -5442,7 +5586,7 @@ func (gs *GoState) addClassDecl(parent GoMethodOwner, jcls *grammar.JClassDecl) 
 
 func (gs *GoState) addVariable(name string, modifiers *grammar.JModifiers, dims int,
 	typespec *grammar.JReferenceType, class_field bool) GoVar {
-	goname := fixName(name, modifiers)
+	goname := fixName(name, modifiers, nil)
 
 	var vartype *TypeData
 	if typespec != nil {
@@ -5559,6 +5703,9 @@ func (gs *GoState) findOrFakeVariable(typename *grammar.JTypeName,
 }
 
 func (gs *GoState) findVariable(typename *grammar.JTypeName) GoVar {
+	if strings.HasPrefix(typename.String(), "&") {
+		typename.Names[0] = strings.Replace(typename.Names[0], "&", "", -1)
+	}
 	if !typename.IsDotted() {
 		val, ok := gs.vars[typename.String()]
 		if ok {
@@ -5712,23 +5859,64 @@ func (gsw *GoSwitch) Stmts() []ast.Stmt {
 		totLabels += len(c.labels)
 	}
 
-	cases := make([]ast.Stmt, totLabels)
-
+	var cases []ast.Stmt
 	nextCase := 0
-	for _, c := range gsw.cases {
+	for i := 0; i < len(gsw.cases); i++ {
+		c := gsw.cases[i]
 		var label *GoSwitchLabel
 		if len(c.labels) == 1 {
 			label = c.labels[0]
+			if label.expr != nil {
+				vals := strings.Split(label.expr.(*GoLiteral).text, ",")
+				processed := map[string]struct{}{}
+				w := 0
+				for _, s := range vals {
+					if _, exists := processed[s]; !exists {
+						// If this city has not been seen yet, add it to the list
+						processed[s] = struct{}{}
+						vals[w] = s
+						w++
+					}
+				}
+				vals = vals[:w]
+				label.expr = NewGoLiteral(strings.Join(vals, ","))
+			}
 		} else {
-			for _, l := range c.labels {
-				if label != nil {
-					body := make([]ast.Stmt, 1)
-					body[0] = &ast.BranchStmt{Tok: token.FALLTHROUGH}
-					cases[nextCase] = &ast.CaseClause{List: label.List(),
-						Body: body}
+			if len(c.labels) > 1 {
+				var vals []string
+				for i := 0; i < len(c.labels); i++ {
+					vals = append(vals, strings.Split(c.labels[i].expr.(*GoLiteral).text, ",")...)
+					//cases[nextCase] = &ast.CaseClause{}
 					nextCase++
 				}
-				label = l
+				{
+					processed := map[string]struct{}{}
+					w := 0
+					for _, s := range vals {
+						if _, exists := processed[s]; !exists {
+							// If this city has not been seen yet, add it to the list
+							processed[s] = struct{}{}
+							vals[w] = s
+							w++
+						}
+					}
+					vals = vals[:w]
+				}
+				label = c.labels[0]
+				label.expr = NewGoLiteral(strings.Join(vals, ","))
+				nextCase--
+			} else {
+				continue
+				//for _, l := range c.labels {
+				//	if label != nil {
+				//		body := make([]ast.Stmt, 0)
+				//		//body[0] = &ast.BranchStmt{Tok: token.FALLTHROUGH}
+				//		cases[nextCase] = &ast.CaseClause{List: label.List(),
+				//			Body: body}
+				//		nextCase++
+				//	}
+				//	label = l
+				//}
 			}
 		}
 
@@ -5741,7 +5929,7 @@ func (gsw *GoSwitch) Stmts() []ast.Stmt {
 			}
 		}
 
-		cases[nextCase] = &ast.CaseClause{List: label.List(), Body: body}
+		cases = append(cases, &ast.CaseClause{List: label.List(), Body: body})
 		nextCase++
 	}
 

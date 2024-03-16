@@ -136,7 +136,7 @@ func TransformArrayLen(parent GoObject, prog *GoProgram, cls GoClass,
 		return nil, true
 	}
 
-	if ref.Suffix() != "length" || ref.VarType().vtype != VT_ARRAY {
+	if ref.Suffix() != "length" || ref.VarType().Vtype != VT_ARRAY {
 		return nil, true
 	}
 

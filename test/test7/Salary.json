@@ -1,0 +1,1125 @@
+{
+	"root": {
+		"-type": "CompilationUnit",
+		"packageDeclaration": {
+			"-type": "PackageDeclaration",
+			"name": {
+				"-type": "Name",
+				"-identifier": "abstr"
+			}
+		},
+		"types": {
+			"type": [{
+				"-type": "ClassOrInterfaceDeclaration",
+				"-isInterface": "false",
+				"name": {
+					"-type": "SimpleName",
+					"-identifier": "Employee"
+				},
+				"comment": {
+					"-type": "BlockComment",
+					"-content": " 文件名 : Employee.java "
+				},
+				"members": {
+					"member": [{
+						"-type": "FieldDeclaration",
+						"modifiers": {
+							"modifier": {
+								"-keyword": "PRIVATE",
+								"-type": "Modifier"
+							}
+						},
+						"variables": {
+							"variable": {
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "name"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								},
+								"-type": "VariableDeclarator"
+							}
+						}
+					}, {
+						"variables": {
+							"variable": {
+								"-type": "VariableDeclarator",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "address"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								}
+							}
+						},
+						"-type": "FieldDeclaration",
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PRIVATE"
+							}
+						}
+					}, {
+						"-type": "FieldDeclaration",
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PRIVATE"
+							}
+						},
+						"variables": {
+							"variable": {
+								"type": {
+									"-type": ["PrimitiveType", "INT"]
+								},
+								"-type": "VariableDeclarator",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "number"
+								}
+							}
+						}
+					}, {
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "Employee"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"parameters": {
+							"parameter": [{
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "name"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								},
+								"-type": "Parameter"
+							}, {
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "address"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								}
+							}, {
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-identifier": "number",
+									"-type": "SimpleName"
+								},
+								"type": {
+									"-type": ["PrimitiveType", "INT"]
+								}
+							}]
+						},
+						"-type": "ConstructorDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": [{
+									"-type": "ExpressionStmt",
+									"expression": {
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "out"
+											},
+											"scope": {
+												"-type": "NameExpr",
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "System"
+												}
+											}
+										},
+										"arguments": {
+											"argument": {
+												"-value": "Constructing an Employee",
+												"-type": "StringLiteralExpr"
+											}
+										},
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-operator": "ASSIGN",
+										"target": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "name"
+											},
+											"scope": {
+												"-type": "ThisExpr"
+											}
+										},
+										"value": {
+											"-type": "NameExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "name"
+											}
+										},
+										"-type": "AssignExpr"
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "AssignExpr",
+										"-operator": "ASSIGN",
+										"target": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "address"
+											},
+											"scope": {
+												"-type": "ThisExpr"
+											}
+										},
+										"value": {
+											"-type": "NameExpr",
+											"name": {
+												"-identifier": "address",
+												"-type": "SimpleName"
+											}
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "AssignExpr",
+										"-operator": "ASSIGN",
+										"target": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "number"
+											},
+											"scope": {
+												"-type": "ThisExpr"
+											}
+										},
+										"value": {
+											"-type": "NameExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "number"
+											}
+										}
+									}
+								}]
+							}
+						}
+					}, {
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "computePay"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": [{
+									"-type": "ExpressionStmt",
+									"expression": {
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "out"
+											},
+											"scope": {
+												"-type": "NameExpr",
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "System"
+												}
+											}
+										},
+										"arguments": {
+											"argument": {
+												"-type": "StringLiteralExpr",
+												"-value": "Inside Employee computePay"
+											}
+										},
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										}
+									}
+								}, {
+									"-type": "ReturnStmt",
+									"expression": {
+										"-type": "DoubleLiteralExpr",
+										"-value": "0.0"
+									}
+								}]
+							}
+						},
+						"type": {
+							"-type": ["PrimitiveType", "DOUBLE"]
+						}
+					}, {
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "mailCheck"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										},
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-identifier": "out",
+												"-type": "SimpleName"
+											},
+											"scope": {
+												"-type": "NameExpr",
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "System"
+												}
+											}
+										},
+										"arguments": {
+											"argument": {
+												"right": {
+													"scope": {
+														"-type": "ThisExpr"
+													},
+													"-type": "FieldAccessExpr",
+													"name": {
+														"-type": "SimpleName",
+														"-identifier": "address"
+													}
+												},
+												"-type": "BinaryExpr",
+												"-operator": "PLUS",
+												"left": {
+													"-operator": "PLUS",
+													"left": {
+														"left": {
+															"-value": "Mailing a check to ",
+															"-type": "StringLiteralExpr"
+														},
+														"right": {
+															"-type": "FieldAccessExpr",
+															"name": {
+																"-type": "SimpleName",
+																"-identifier": "name"
+															},
+															"scope": {
+																"-type": "ThisExpr"
+															}
+														},
+														"-type": "BinaryExpr",
+														"-operator": "PLUS"
+													},
+													"right": {
+														"-type": "StringLiteralExpr",
+														"-value": " "
+													},
+													"-type": "BinaryExpr"
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": "VoidType"
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ReturnStmt",
+									"expression": {
+										"left": {
+											"-type": "BinaryExpr",
+											"-operator": "PLUS",
+											"left": {
+												"left": {
+													"left": {
+														"-type": "NameExpr",
+														"name": {
+															"-type": "SimpleName",
+															"-identifier": "name"
+														}
+													},
+													"right": {
+														"-type": "StringLiteralExpr",
+														"-value": " "
+													},
+													"-type": "BinaryExpr",
+													"-operator": "PLUS"
+												},
+												"right": {
+													"-type": "NameExpr",
+													"name": {
+														"-type": "SimpleName",
+														"-identifier": "address"
+													}
+												},
+												"-type": "BinaryExpr",
+												"-operator": "PLUS"
+											},
+											"right": {
+												"-type": "StringLiteralExpr",
+												"-value": " "
+											}
+										},
+										"right": {
+											"-type": "NameExpr",
+											"name": {
+												"-identifier": "number",
+												"-type": "SimpleName"
+											}
+										},
+										"-type": "BinaryExpr",
+										"-operator": "PLUS"
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": "ClassOrInterfaceType",
+							"name": {
+								"-identifier": "String",
+								"-type": "SimpleName"
+							}
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "toString"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ReturnStmt",
+									"expression": {
+										"name": {
+											"-identifier": "name",
+											"-type": "SimpleName"
+										},
+										"-type": "NameExpr"
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": "ClassOrInterfaceType",
+							"name": {
+								"-type": "SimpleName",
+								"-identifier": "String"
+							}
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "getName"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ReturnStmt",
+									"expression": {
+										"-type": "NameExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "address"
+										}
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": "ClassOrInterfaceType",
+							"name": {
+								"-identifier": "String",
+								"-type": "SimpleName"
+							}
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "getAddress"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": [{
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "getName"
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "AssignExpr",
+										"-operator": "ASSIGN",
+										"target": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "name"
+											},
+											"scope": {
+												"-type": "ThisExpr"
+											}
+										},
+										"value": {
+											"-type": "StringLiteralExpr",
+											"-value": "22"
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"scope": {
+											"-type": "ThisExpr"
+										},
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "getName"
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "AssignExpr",
+										"-operator": "ASSIGN",
+										"target": {
+											"-type": "NameExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "address"
+											}
+										},
+										"value": {
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "newAddress"
+											},
+											"-type": "NameExpr"
+										}
+									}
+								}]
+							}
+						},
+						"type": {
+							"-type": "VoidType"
+						},
+						"name": {
+							"-identifier": "setAddress",
+							"-type": "SimpleName"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"parameters": {
+							"parameter": {
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "newAddress"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								}
+							}
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ReturnStmt",
+									"expression": {
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "number"
+										},
+										"-type": "NameExpr"
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": ["PrimitiveType", "INT"]
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "getNumber"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						}
+					}]
+				},
+				"modifiers": {
+					"modifier": {
+						"-type": "Modifier",
+						"-keyword": "ABSTRACT"
+					}
+				}
+			}, {
+				"-type": "ClassOrInterfaceDeclaration",
+				"-isInterface": "false",
+				"name": {
+					"-type": "SimpleName",
+					"-identifier": "Salary"
+				},
+				"extendedTypes": {
+					"extendedType": {
+						"-type": "ClassOrInterfaceType",
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "Employee"
+						}
+					}
+				},
+				"members": {
+					"member": [{
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PRIVATE"
+							}
+						},
+						"variables": {
+							"variable": {
+								"-type": "VariableDeclarator",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "salary"
+								},
+								"type": {
+									"-type": ["PrimitiveType", "DOUBLE"]
+								}
+							}
+						},
+						"-type": "FieldDeclaration",
+						"comment": {
+							"-type": "LineComment",
+							"-content": "Annual salary"
+						}
+					}, {
+						"-type": "ConstructorDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": [{
+									"-type": "ExplicitConstructorInvocationStmt",
+									"-isThis": "false",
+									"arguments": {
+										"argument": [{
+											"-type": "NameExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "name"
+											}
+										}, {
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "address"
+											},
+											"-type": "NameExpr"
+										}, {
+											"-type": "NameExpr",
+											"name": {
+												"-identifier": "number",
+												"-type": "SimpleName"
+											}
+										}]
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "setSalary"
+										},
+										"arguments": {
+											"argument": {
+												"-type": "NameExpr",
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "salary"
+												}
+											}
+										}
+									}
+								}]
+							}
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "Salary"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"parameters": {
+							"parameter": [{
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-identifier": "name",
+									"-type": "SimpleName"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								}
+							}, {
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "address"
+								},
+								"type": {
+									"-type": "ClassOrInterfaceType",
+									"name": {
+										"-type": "SimpleName",
+										"-identifier": "String"
+									}
+								}
+							}, {
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "number"
+								},
+								"type": {
+									"-type": ["PrimitiveType", "INT"]
+								}
+							}, {
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "salary"
+								},
+								"type": {
+									"-type": ["PrimitiveType", "DOUBLE"]
+								},
+								"-type": "Parameter"
+							}]
+						}
+					}, {
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": [{
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										},
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "out"
+											},
+											"scope": {
+												"-type": "NameExpr",
+												"name": {
+													"-identifier": "System",
+													"-type": "SimpleName"
+												}
+											}
+										},
+										"arguments": {
+											"argument": {
+												"-type": "StringLiteralExpr",
+												"-value": "Within mailCheck of Salary class "
+											}
+										}
+									}
+								}, {
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										},
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "out"
+											},
+											"scope": {
+												"-type": "NameExpr",
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "System"
+												}
+											}
+										},
+										"arguments": {
+											"argument": {
+												"-type": "BinaryExpr",
+												"-operator": "PLUS",
+												"left": {
+													"-type": "BinaryExpr",
+													"-operator": "PLUS",
+													"left": {
+														"-type": "BinaryExpr",
+														"-operator": "PLUS",
+														"left": {
+															"-type": "StringLiteralExpr",
+															"-value": "Mailing check to "
+														},
+														"right": {
+															"-type": "MethodCallExpr",
+															"name": {
+																"-type": "SimpleName",
+																"-identifier": "getName"
+															}
+														}
+													},
+													"right": {
+														"-type": "StringLiteralExpr",
+														"-value": " with salary "
+													}
+												},
+												"right": {
+													"-type": "NameExpr",
+													"name": {
+														"-identifier": "salary",
+														"-type": "SimpleName"
+													}
+												}
+											}
+										}
+									}
+								}]
+							}
+						},
+						"type": {
+							"-type": "VoidType"
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "mailCheck"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						}
+					}, {
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"-type": "MethodDeclaration",
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"-type": "ReturnStmt",
+									"expression": {
+										"-type": "NameExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "salary"
+										}
+									}
+								}
+							}
+						},
+						"type": {
+							"-type": ["PrimitiveType", "DOUBLE"]
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "getSalary"
+						}
+					}, {
+						"body": {
+							"-type": "BlockStmt",
+							"statements": {
+								"statement": {
+									"condition": {
+										"-type": "BinaryExpr",
+										"-operator": "GREATER_EQUALS",
+										"left": {
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "newSalary"
+											},
+											"-type": "NameExpr"
+										},
+										"right": {
+											"-value": "0.0",
+											"-type": "DoubleLiteralExpr"
+										}
+									},
+									"thenStmt": {
+										"-type": "BlockStmt",
+										"statements": {
+											"statement": {
+												"expression": {
+													"-type": "AssignExpr",
+													"-operator": "ASSIGN",
+													"target": {
+														"-type": "NameExpr",
+														"name": {
+															"-identifier": "salary",
+															"-type": "SimpleName"
+														}
+													},
+													"value": {
+														"-type": "NameExpr",
+														"name": {
+															"-type": "SimpleName",
+															"-identifier": "newSalary"
+														}
+													}
+												},
+												"-type": "ExpressionStmt"
+											}
+										}
+									},
+									"-type": "IfStmt"
+								}
+							}
+						},
+						"type": {
+							"-type": "VoidType"
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "setSalary"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"parameters": {
+							"parameter": {
+								"type": {
+									"-type": ["PrimitiveType", "DOUBLE"]
+								},
+								"-type": "Parameter",
+								"-isVarArgs": "false",
+								"name": {
+									"-type": "SimpleName",
+									"-identifier": "newSalary"
+								}
+							}
+						},
+						"-type": "MethodDeclaration"
+					}, {
+						"type": {
+							"-type": ["PrimitiveType", "DOUBLE"]
+						},
+						"name": {
+							"-type": "SimpleName",
+							"-identifier": "computePay"
+						},
+						"modifiers": {
+							"modifier": {
+								"-type": "Modifier",
+								"-keyword": "PUBLIC"
+							}
+						},
+						"-type": "MethodDeclaration",
+						"body": {
+							"statements": {
+								"statement": [{
+									"-type": "ExpressionStmt",
+									"expression": {
+										"-type": "MethodCallExpr",
+										"name": {
+											"-type": "SimpleName",
+											"-identifier": "println"
+										},
+										"scope": {
+											"-type": "FieldAccessExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "out"
+											},
+											"scope": {
+												"name": {
+													"-type": "SimpleName",
+													"-identifier": "System"
+												},
+												"-type": "NameExpr"
+											}
+										},
+										"arguments": {
+											"argument": {
+												"-type": "BinaryExpr",
+												"-operator": "PLUS",
+												"left": {
+													"-type": "StringLiteralExpr",
+													"-value": "Computing salary pay for "
+												},
+												"right": {
+													"-type": "MethodCallExpr",
+													"name": {
+														"-type": "SimpleName",
+														"-identifier": "getName"
+													}
+												}
+											}
+										}
+									}
+								}, {
+									"-type": "ReturnStmt",
+									"expression": {
+										"-operator": "DIVIDE",
+										"left": {
+											"-type": "NameExpr",
+											"name": {
+												"-type": "SimpleName",
+												"-identifier": "salary"
+											}
+										},
+										"right": {
+											"-type": "IntegerLiteralExpr",
+											"-value": "52"
+										},
+										"-type": "BinaryExpr"
+									}
+								}]
+							},
+							"-type": "BlockStmt"
+						}
+					}]
+				},
+				"modifiers": {
+					"modifier": {
+						"-keyword": "PUBLIC",
+						"-type": "Modifier"
+					}
+				}
+			}]
+		}
+	}
+}

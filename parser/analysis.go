@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/token"
 	"log"
+	"strings"
 
 	//"os"
 
@@ -18,21 +19,37 @@ func findMethod(owner GoMethodOwner, class GoMethodOwner, name string,
 	}
 
 	if mthd == nil && owner != nil && !owner.IsNil() {
-		mthd = owner.FindMethod(name, arglist)
+		current := owner
+		for current != nil {
+			mthd = current.FindMethod(name, arglist)
+			if mthd != nil {
+				break
+			}
+			current = current.Super()
+		}
 	}
 
 	if mthd == nil {
-		mthd = NewGoMethodReference(class, name, arglist, verbose)
-		if owner != nil && !owner.IsNil() {
-			owner.AddMethod(mthd)
-		} else if class != nil && !class.IsNil() {
+		if class != nil && !class.IsNil() {
+			mthd = NewGoMethodReference(class, name, arglist, verbose)
 			class.AddMethod(mthd)
+		} else if owner != nil && !owner.IsNil() {
+			mthd = NewGoMethodReference(owner, name, arglist, verbose)
+			owner.AddMethod(mthd)
 		} else {
 			panic("Both class and owner are nil")
 		}
 	}
 
 	return mthd
+}
+
+func analyzeConditionalExpr(gs *GoState, owner GoMethodOwner,
+	conditinal *grammar.JConditionalExpr) GoExpr {
+	//conditinal.IfExpr
+	args := []grammar.JObject{conditinal.CondExpr, conditinal.IfExpr, conditinal.ElseExpr}
+	expr := grammar.JMethodAccess{Method: "utils.Ternary", ArgList: args, Fixed: false}
+	return analyzeMethodAccess(gs, owner, &expr, nil)
 }
 
 func analyzeAllocationExpr(gs *GoState, owner GoMethodOwner,
@@ -93,7 +110,7 @@ func analyzeAllocationExpr(gs *GoState, owner GoMethodOwner,
 			gs.addClass(c2)
 			cref = c2
 		case *grammar.JBlock:
-			stmt := analyzeBlock(gs, owner, j)
+			stmt := analyzeBlock(gs, owner, j, nil)
 			if stmt != nil {
 				body = append(body, stmt)
 			}
@@ -276,7 +293,7 @@ func analyzeBinaryExpr(gs *GoState, owner GoMethodOwner,
 		y: analyzeExpr(gs, owner, bexpr.Obj2)}
 }
 
-func analyzeBlock(gs *GoState, owner GoMethodOwner, blk *grammar.JBlock) *GoBlock {
+func analyzeBlockSymbol(gs *GoState, owner GoMethodOwner, blk *grammar.JBlock) *GoBlock {
 	stmts := make([]GoStatement, 0)
 
 	gs2 := NewGoState(gs)
@@ -284,7 +301,32 @@ func analyzeBlock(gs *GoState, owner GoMethodOwner, blk *grammar.JBlock) *GoBloc
 	for _, bobj := range blk.List {
 		switch b := bobj.(type) {
 		case *grammar.JBlock:
-			blk := analyzeBlock(gs2, owner, b)
+			blk := analyzeBlockSymbol(gs2, owner, b)
+			if blk != nil {
+				stmts = append(stmts, blk)
+			}
+		case *grammar.JMethodDecl:
+			if cls, ok := owner.(*GoClassDefinition); ok {
+				fmt.Println("AddNewMethod:" + b.Name)
+				cls.AddNewMethod(gs2, b)
+			} else {
+				log.Printf("//ERR// Cannot add new method to %T\n", owner)
+			}
+		}
+	}
+
+	return &GoBlock{stmts: stmts}
+}
+
+func analyzeBlock(gs *GoState, owner GoMethodOwner, blk *grammar.JBlock, params []*grammar.JFormalParameter) *GoBlock {
+	stmts := make([]GoStatement, 0)
+
+	gs2 := NewGoState(gs)
+
+	for _, bobj := range blk.List {
+		switch b := bobj.(type) {
+		case *grammar.JBlock:
+			blk := analyzeBlock(gs2, owner, b, params)
 			if blk != nil {
 				stmts = append(stmts, blk)
 			}
@@ -335,7 +377,7 @@ func analyzeBlock(gs *GoState, owner GoMethodOwner, blk *grammar.JBlock) *GoBloc
 				log.Printf("//ERR// Cannot add new method to %T\n", owner)
 			}
 		case *grammar.JSimpleStatement:
-			ss := analyzeSimpleStatement(gs2, owner, b)
+			ss := analyzeSimpleStatement(gs2, owner, b, params)
 			if ss != nil {
 				stmts = append(stmts, ss)
 			}
@@ -398,6 +440,16 @@ func analyzeCastExpr(gs *GoState, owner GoMethodOwner,
 	return &GoCastType{target: analyzeExpr(gs, owner, cex.Target), casttype: td}
 }
 
+func analyzeClassBodySymbol(gs *GoState, cls *GoClassDefinition, body *grammar.JClassBody) {
+	for _, bobj := range body.List {
+		switch b := bobj.(type) {
+		case *grammar.JMethodDecl:
+			fmt.Println("AddNewMethod:" + b.Name)
+			cls.AddNewMethod(gs, b)
+		}
+	}
+}
+
 func analyzeClassBody(gs *GoState, cls *GoClassDefinition, body *grammar.JClassBody) {
 	for _, bobj := range body.List {
 		switch b := bobj.(type) {
@@ -451,13 +503,14 @@ func analyzeExpr(gs *GoState, owner GoMethodOwner, obj grammar.JObject) GoExpr {
 	case *grammar.JClassAllocationExpr:
 		return analyzeAllocationExpr(gs, owner, e)
 	case *grammar.JConditionalExpr:
-		if gs.Program().verbose {
-			log.Printf("//ERR// Not converting condexpr %T (%T|?|%T|:|%T) to Expr\n",
-				e, e.CondExpr, e.IfExpr, e.ElseExpr)
-		} else {
-			log.Printf("//ERR// Not converting condexpr to Expr\n")
-		}
-		return &GoUnimplemented{fname: "expr", text: fmt.Sprintf("%T", e)}
+		//if gs.Program().verbose {
+		//	log.Printf("//ERR// Not converting condexpr %T (%T|?|%T|:|%T) to Expr\n",
+		//		e, e.CondExpr, e.IfExpr, e.ElseExpr)
+		//} else {
+		//	log.Printf("//ERR// Not converting condexpr to Expr\n")
+		//}
+		//return &GoUnimplemented{fname: "expr", text: fmt.Sprintf("%T", e)}
+		return analyzeConditionalExpr(gs, owner, e)
 	case *grammar.JInstanceOf:
 		return &GoInstanceOf{expr: analyzeExpr(gs, owner, e.Obj),
 			vartype: analyzeReferenceType(gs, e.TypeSpec)}
@@ -466,7 +519,7 @@ func analyzeExpr(gs *GoState, owner GoMethodOwner, obj grammar.JObject) GoExpr {
 	case *grammar.JLiteral:
 		return NewGoLiteral(e.Text)
 	case *grammar.JMethodAccess:
-		return analyzeMethodAccess(gs, owner, e)
+		return analyzeMethodAccess(gs, owner, e, nil)
 	case *grammar.JNameDotObject:
 		return analyzeNameDotObject(gs, e)
 	case *grammar.JArrayReference:
@@ -480,6 +533,24 @@ func analyzeExpr(gs *GoState, owner GoMethodOwner, obj grammar.JObject) GoExpr {
 	case *grammar.JReferenceType:
 		return analyzeReferenceType(gs, e)
 	case *grammar.JUnaryExpr:
+		if e.IsPrefix && e.Op == "++" {
+			//tp := grammar.NewJReferenceType(grammar.NewJTypeName("*int", true), []grammar.JObject{}, 0)
+			//arg := grammar.NewJTypeArgument(tp, 0) //e.Obj[]grammar.JObject{e.Obj}
+			//pobj := grammar.NewJObject(e.Obj, grammar.NewJTypeName("*int", true))
+			//
+			//pobj := grammar.NewJInstanceOf(e.Obj, tp) //analyzeReferenceType(gs,
+			//pobj := grammar.NewJArrayAlloc(grammar.NewJTypeName("int", true), []grammar.JObject{e.Obj}, 1)
+			//govar := gs.addVariable(fp.Name, fp.Modifiers, fp.Dims,
+			//	fp.TypeSpec, false)
+			//params := make([]GoVar, govar)
+			//ast.Ident{Name: e.Obj}
+			//pobj := NewGoPrimitiveType("*int", 0)
+			//e.Obj.(*grammar.JObjectDotName).Name.Names[0] = "&" + e.Obj.(*grammar.JObjectDotName).Name.Names[0]
+			pobj := grammar.NewJUnaryExpr("&", e.Obj, true) // {op: token.AND, x: analyzeExpr(gs, owner, e.Obj)}
+			args := []grammar.JObject{pobj}
+			expr := grammar.JMethodAccess{Method: "utils.Plus", ArgList: args, Fixed: false}
+			return analyzeMethodAccess(gs, owner, &expr, nil)
+		}
 		return analyzeUnaryExpr(gs, owner, e)
 	case *grammar.JUnimplemented:
 		log.Printf("//ERR// Not analyzing unimplemented expr %s\n", e.TypeStr)
@@ -689,7 +760,11 @@ func analyzeLocalVariableInternal(gs *GoState, owner GoMethodOwner,
 }
 
 func analyzeMethodAccess(gs *GoState, owner GoMethodOwner,
-	mth *grammar.JMethodAccess) GoExpr {
+	mth *grammar.JMethodAccess, params []*grammar.JFormalParameter) GoExpr {
+	if mth.Fixed == false && (mth.NameType == nil || !mth.NameType.IsDotted()) {
+		mth.Fixed = true
+		mth.Method = fixNameEx3(mth.Method, grammar.ModPublic, mth.ArgList, params)
+	}
 	arglist := NewGoMethodArguments(gs, owner, mth.ArgList)
 
 	if mth.NameKey != nil {
@@ -721,7 +796,7 @@ func analyzeMethodAccess(gs *GoState, owner GoMethodOwner,
 				class = nilMethodOwner
 			}
 		}
-
+		fmt.Println("findMethod:" + mth.Method)
 		mthd := findMethod(owner, class, mth.Method, arglist,
 			gs.Program().verbose)
 
@@ -745,7 +820,7 @@ func analyzeMethodAccess(gs *GoState, owner GoMethodOwner,
 			}
 		}
 	}
-
+	fmt.Println("findMethod:" + mth.Method)
 	mthd := findMethod(owner, class, mth.Method, arglist, gs.Program().verbose)
 
 	if govar != nil {
@@ -789,12 +864,15 @@ func analyzeObjectDotName(gs *GoState, owner GoMethodOwner,
 			if rvar == nil {
 				rvar = gs.addVariable(gs.Receiver(), nil, 0, nil, false)
 			}
-
+			nm := odn.Name.FirstType()
 			ref := gs.findVariable(odn.Name)
 			if ref == nil {
 				ref = gs.addVariable(gs.Receiver(), nil, 0, nil, false)
 			}
-
+			if strings.HasPrefix(nm, "&") {
+				rvar.SetGoName(rvar.GoName())
+				return NewGoSelector(rvar, ref)
+			}
 			return NewGoSelector(rvar, ref)
 		} else if o.Token == grammar.SUPER && gs.Receiver() != "" {
 			log.Printf("//ERR// Not converting odnobj super\n")
@@ -822,8 +900,48 @@ func analyzeReferenceType(gs *GoState, ref *grammar.JReferenceType) GoVar {
 	return NewFakeVar(ref.Name.String(), ref.TypeArgs, ref.Dims)
 }
 
+func getVarType(name string, paramsInfo []*grammar.JFormalParameter) string {
+	for _, paramInfo := range paramsInfo {
+		if paramInfo.Name == name {
+			return paramInfo.TypeSpec.Name.Names[0]
+		}
+	}
+	return "Unknown"
+}
+func fixNameEx3(name string, modifier int, params []grammar.JObject, paramsInfo []*grammar.JFormalParameter) string {
+	suffix := ""
+
+	for _, param := range params {
+		tp := ""
+		switch v := param.(type) {
+		case *grammar.JReferenceType:
+			tp = getVarType(v.Name.Names[0], paramsInfo)
+		}
+		if tp == "Unknown" {
+			continue
+		}
+		tp = strings.Replace(tp, "[]", "Arr", -1)
+		tp = strings.Replace(tp, "*", "", -1)
+		if tp == "string" {
+			tp = "String"
+		}
+		suffix += tp
+	}
+
+	if name != "" {
+		if modifier == grammar.ModPrivate {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModPublic {
+			return strings.ToUpper(name[:1]) + name[1:] + suffix
+		} else if modifier == grammar.ModProtected {
+			return strings.ToLower(name[:1]) + name[1:] + suffix
+		}
+	}
+
+	return name + suffix
+}
 func analyzeSimpleStatement(gs *GoState, owner GoMethodOwner,
-	jstmt *grammar.JSimpleStatement) GoStatement {
+	jstmt *grammar.JSimpleStatement, params []*grammar.JFormalParameter) GoStatement {
 
 	if jstmt.Keyword != nil {
 		switch jstmt.Keyword.Token {
@@ -852,8 +970,17 @@ func analyzeSimpleStatement(gs *GoState, owner GoMethodOwner,
 	case *grammar.JClassAllocationExpr:
 		return &GoExprStmt{x: analyzeAllocationExpr(gs, owner, expr)}
 	case *grammar.JMethodAccess:
-		return &GoExprStmt{x: analyzeMethodAccess(gs, owner, expr)}
+		if expr.Fixed == false && (expr.NameType == nil || len(expr.NameType.Names) == 0) {
+			expr.Fixed = true
+			expr.Method = fixNameEx3(expr.Method, grammar.ModPublic, expr.ArgList, params)
+		}
+		return &GoExprStmt{x: analyzeMethodAccess(gs, owner, expr, params)}
 	case *grammar.JUnaryExpr:
+		if expr.IsPrefix && expr.Op == "++" {
+			args := []grammar.JObject{expr.Obj}
+			expr := grammar.JMethodAccess{Method: "utils.Plus", ArgList: args, Fixed: false}
+			return &GoExprStmt{x: analyzeMethodAccess(gs, owner, &expr, params)}
+		}
 		return analyzeUnaryExpr(gs, owner, expr)
 	default:
 		log.Printf("//ERR// -------- not analyzing simpstmt %T\n", jstmt.Object)
@@ -868,7 +995,7 @@ func analyzeStmt(gs *GoState, owner GoMethodOwner,
 	case *grammar.JAssignmentExpr:
 		return []GoStatement{analyzeAssignExpr(gs, owner, stmt)}
 	case *grammar.JBlock:
-		return []GoStatement{analyzeBlock(gs, owner, stmt)}
+		return []GoStatement{analyzeBlock(gs, owner, stmt, nil)}
 	case *grammar.JForColon:
 		return []GoStatement{analyzeForColon(gs, owner, stmt)}
 	case *grammar.JForVar:
@@ -880,10 +1007,16 @@ func analyzeStmt(gs *GoState, owner GoMethodOwner,
 	case *grammar.JLocalVariableDecl:
 		return analyzeLocalVariableDeclaration(gs, owner, stmt)
 	case *grammar.JSimpleStatement:
-		return []GoStatement{analyzeSimpleStatement(gs, owner, stmt)}
+		return []GoStatement{analyzeSimpleStatement(gs, owner, stmt, nil)}
 	case *grammar.JTry:
 		return []GoStatement{analyzeTry(gs, owner, stmt)}
 	case *grammar.JUnaryExpr:
+		if stmt.IsPrefix && stmt.Op == "++" {
+			//	args := []grammar.JObject{&stmt.Obj}
+			//	expr := grammar.JMethodAccess{Method: "utils.Plus", ArgList: args}
+			//	return []GoStatement{analyzeMethodAccess(gs, owner, &expr)}
+			return []GoStatement{analyzeUnaryExpr(gs, owner, stmt)}
+		}
 		return []GoStatement{analyzeUnaryExpr(gs, owner, stmt)}
 	case *grammar.JUnimplemented:
 		log.Printf("//ERR// Not analyzing unimplemented stmt %s\n", stmt.TypeStr)
@@ -937,23 +1070,23 @@ func analyzeSwitchCase(gs *GoState, owner GoMethodOwner,
 
 	// if last statement is 'break', delete it (it's implicit in Go)
 	// if it's not 'break', add a fallthrough
-	need_fall := true
+	//need_fall := true
 	l := len(stmts)
 	if l > 0 {
 		switch br := stmts[l-1].(type) {
 		case *GoBranchStmt:
 			if br.tok == token.BREAK {
 				stmts = stmts[0 : l-1]
-				need_fall = false
+				//need_fall = false
 			}
 		case *GoJumpToLabel:
-			need_fall = false
+			//need_fall = false
 		}
 	}
 
-	if need_fall {
-		stmts = append(stmts, &GoBranchStmt{tok: token.FALLTHROUGH})
-	}
+	//if need_fall {
+	//	stmts = append(stmts, &GoBranchStmt{tok: token.FALLTHROUGH})
+	//}
 
 	return &GoSwitchCase{labels: labels, stmts: stmts}
 }
@@ -979,11 +1112,11 @@ func analyzeSwitchLabel(gs *GoState, owner GoMethodOwner,
 func analyzeSynchronized(gs *GoState, owner GoMethodOwner,
 	sync *grammar.JSynchronized) *GoSynchronized {
 	return &GoSynchronized{expr: analyzeExpr(gs, owner, sync.Expr),
-		block: analyzeBlock(gs, owner, sync.Block)}
+		block: analyzeBlock(gs, owner, sync.Block, nil)}
 }
 
 func analyzeTry(gs *GoState, owner GoMethodOwner, try *grammar.JTry) *GoTry {
-	gt := &GoTry{block: analyzeBlock(NewGoState(gs), owner, try.Block)}
+	gt := &GoTry{block: analyzeBlock(NewGoState(gs), owner, try.Block, nil)}
 
 	if try.Catches != nil && len(try.Catches) > 0 {
 		gs2 := NewGoState(gs)
@@ -1006,12 +1139,12 @@ func analyzeTry(gs *GoState, owner GoMethodOwner, try *grammar.JTry) *GoTry {
 			}
 
 			gt.catches[i] = &GoTryCatch{govar: govar,
-				block: analyzeBlock(gs2, owner, c.Block)}
+				block: analyzeBlock(gs2, owner, c.Block, nil)}
 		}
 	}
 
 	if try.Finally != nil {
-		gt.finally = analyzeBlock(NewGoState(gs), owner, try.Finally)
+		gt.finally = analyzeBlock(NewGoState(gs), owner, try.Finally, nil)
 	}
 
 	return gt
@@ -1032,10 +1165,11 @@ func analyzeUnaryExpr(gs *GoState, owner GoMethodOwner, uexpr *grammar.JUnaryExp
 		op = token.ADD
 	case "-":
 		op = token.SUB
+	case "&": // 正常没有
+		op = token.AND
 	default:
 		panic(fmt.Sprintf("Unknown unary operator \"%s\"", uexpr.Op))
 	}
-
 	return &GoUnaryExpr{op: op, x: analyzeExpr(gs, owner, uexpr.Obj)}
 }
 

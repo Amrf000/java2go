@@ -27,8 +27,8 @@ func NewJUnimplemented(typestr string) *JUnimplemented {
 }
 
 type JAnnotation struct {
-	name *JTypeName
-	elem []JObject
+	name       *JTypeName
+	elem       []JObject
 	has_parens bool
 }
 
@@ -44,8 +44,8 @@ func NewJAnnotation(name *JTypeName, elem []JObject,
 type JArrayAlloc struct {
 	Typename *JTypeName
 	Dimexprs []JObject
-	Dims int
-	Init []*JVariableInit
+	Dims     int
+	Init     []*JVariableInit
 }
 
 func NewJArrayAlloc(typename *JTypeName, dimexprs []JObject,
@@ -63,7 +63,7 @@ func (j *JArrayAlloc) SetInitializers(init []*JVariableInit) {
 
 type JArrayReference struct {
 	Name *JTypeName
-	Obj JObject
+	Obj  JObject
 	Expr JObject
 }
 
@@ -80,8 +80,8 @@ func NewJArrayReference(name *JTypeName, obj JObject, expr JObject) *JArrayRefer
 }
 
 type JAssignmentExpr struct {
-	Left JObject
-	Op string
+	Left  JObject
+	Op    string
 	Right JObject
 }
 
@@ -97,7 +97,7 @@ func NewJAssignmentExpr(left JObject, op string, right JObject) *JAssignmentExpr
 
 type JBinaryExpr struct {
 	Obj1 JObject
-	Op string
+	Op   string
 	Obj2 JObject
 }
 
@@ -115,7 +115,7 @@ func NewJBinaryExpr(obj1 JObject, op string, obj2 JObject) *JBinaryExpr {
 
 type JBlock struct {
 	static bool
-	List []JObject
+	List   []JObject
 }
 
 func NewJBlock(list []JObject) *JBlock {
@@ -126,7 +126,7 @@ func (j *JBlock) SetStatic() { j.static = true }
 
 type JCastExpr struct {
 	Reftype *JReferenceType
-	Target JObject
+	Target  JObject
 }
 
 func NewJCastExpr(reftype *JReferenceType, target JObject) *JCastExpr {
@@ -141,9 +141,9 @@ func NewJCastExpr(reftype *JReferenceType, target JObject) *JCastExpr {
 
 type JCatch struct {
 	Modifiers *JModifiers
-	TypeList []*JTypeName
-	Name string
-	Block *JBlock
+	TypeList  []*JTypeName
+	Name      string
+	Block     *JBlock
 }
 
 func NewJCatch(modifiers *JModifiers, typelist []*JTypeName, name string,
@@ -157,10 +157,10 @@ func NewJCatch(modifiers *JModifiers, typelist []*JTypeName, name string,
 }
 
 type JClassAllocationExpr struct {
-	Name *JTypeName
+	Name     *JTypeName
 	TypeArgs []*JTypeArgument
-	Arglist []JObject
-	Body []JObject
+	Arglist  []JObject
+	Body     []JObject
 }
 
 func NewJClassAllocationExpr(name *JTypeName, obj_args []JObject,
@@ -202,12 +202,12 @@ func NewJClassBody(list []JObject) *JClassBody {
 }
 
 type JClassDecl struct {
-	modifiers *JModifiers
-	Name string
+	modifiers   *JModifiers
+	Name        string
 	type_params []JObject
-	Extends *JReferenceType
-	Interfaces []*JTypeName
-	Body []JObject
+	Extends     *JReferenceType
+	Interfaces  []*JTypeName
+	Body        []JObject
 }
 
 func NewJClassDecl(modifiers *JModifiers, name string, type_params []JObject,
@@ -223,7 +223,7 @@ func NewJClassDecl(modifiers *JModifiers, name string, type_params []JObject,
 
 type JConditionalExpr struct {
 	CondExpr JObject
-	IfExpr JObject
+	IfExpr   JObject
 	ElseExpr JObject
 }
 
@@ -234,10 +234,10 @@ func NewJConditionalExpr(condexpr JObject, ifexpr JObject, elseexpr JObject) *JC
 
 type JConstantDecl struct {
 	modifiers *JModifiers
-	TypeSpec *JReferenceType
-	Name string
-	Dims int
-	Init *JVariableInit
+	TypeSpec  *JReferenceType
+	Name      string
+	Dims      int
+	Init      *JVariableInit
 }
 
 func NewJConstantDecl(name string, dims int,
@@ -250,7 +250,7 @@ func (j *JConstantDecl) HasName() bool {
 }
 
 func (j *JConstantDecl) SetModifiers(modifiers *JModifiers) {
-       j.modifiers = modifiers
+	j.modifiers = modifiers
 }
 
 func (j *JConstantDecl) SetName(name string) {
@@ -269,7 +269,7 @@ func (j *JConstantDecl) SetType(typespec *JReferenceType) {
 }
 
 type JElementValuePair struct {
-	name string
+	name  string
 	value JObject
 }
 
@@ -290,7 +290,7 @@ func NewJEmpty() *JEmpty {
 
 type JEnumBody struct {
 	constants []*JEnumConstant
-	bodydecl []JObject
+	bodydecl  []JObject
 }
 
 func NewJEnumBody(clist []JObject, bodydecl []JObject) *JEnumBody {
@@ -311,9 +311,9 @@ func NewJEnumBody(clist []JObject, bodydecl []JObject) *JEnumBody {
 
 type JEnumConstant struct {
 	Annotations []*JAnnotation
-	Name string
-	ArgList []JObject
-	Body []JObject
+	Name        string
+	ArgList     []JObject
+	Body        []JObject
 }
 
 func NewJEnumConstant(alist []JObject, name string, arglist []JObject,
@@ -335,11 +335,11 @@ func NewJEnumConstant(alist []JObject, name string, arglist []JObject,
 }
 
 type JEnumDecl struct {
-	modifiers *JModifiers
-	Name string
+	modifiers  *JModifiers
+	Name       string
 	Interfaces []*JTypeName
-	Constants []*JEnumConstant
-	BodyDecl []JObject
+	Constants  []*JEnumConstant
+	BodyDecl   []JObject
 }
 
 func NewJEnumDecl(modifiers *JModifiers, name string, interfaces []*JTypeName,
@@ -361,8 +361,8 @@ func NewJEnumDecl(modifiers *JModifiers, name string, interfaces []*JTypeName,
 
 type JForColon struct {
 	VarDecl *JVariableDecl
-	Expr JObject
-	Body JObject
+	Expr    JObject
+	Body    JObject
 }
 
 func NewJForColon(modifiers *JModifiers, typespec *JReferenceType,
@@ -403,10 +403,10 @@ func (j *JForExpr) SetBody(body JObject) {
 
 type JForVar struct {
 	VarDecl *JVariableDecl
-	Decl JObject
-	Expr JObject
-	Incr []JObject
-	Body JObject
+	Decl    JObject
+	Expr    JObject
+	Incr    []JObject
+	Body    JObject
 }
 
 func NewJForVar(modifiers *JModifiers, typespec *JReferenceType,
@@ -448,10 +448,10 @@ func (j *JForVar) SetInit(init *JVariableInit) {
 
 type JFormalParameter struct {
 	Modifiers *JModifiers
-	TypeSpec *JReferenceType
+	TypeSpec  *JReferenceType
 	DotDotDot bool
-	Name string
-	Dims int
+	Name      string
+	Dims      int
 }
 
 func NewJFormalParameter(typespec *JReferenceType, dotdotdot bool,
@@ -465,12 +465,12 @@ func NewJFormalParameter(typespec *JReferenceType, dotdotdot bool,
 }
 
 func (j *JFormalParameter) SetModifiers(modifiers *JModifiers) {
-       j.Modifiers = modifiers
+	j.Modifiers = modifiers
 }
 
 type JIfElseStmt struct {
-	Cond JObject
-	IfBlock JObject
+	Cond      JObject
+	IfBlock   JObject
 	ElseBlock JObject
 }
 
@@ -485,8 +485,8 @@ func NewJIfElseStmt(cond JObject, ifblock JObject, elseblock JObject) *JIfElseSt
 }
 
 type JImportStmt struct {
-	Name *JTypeName
-	is_wild bool
+	Name      *JTypeName
+	is_wild   bool
 	is_static bool
 }
 
@@ -495,7 +495,7 @@ func NewJImportStmt(name *JTypeName, is_wild bool, is_static bool) *JImportStmt 
 }
 
 type JInstanceOf struct {
-	Obj JObject
+	Obj      JObject
 	TypeSpec *JReferenceType
 }
 
@@ -510,11 +510,11 @@ func NewJInstanceOf(obj JObject, typespec *JReferenceType) *JInstanceOf {
 }
 
 type JInterfaceDecl struct {
-	modifiers *JModifiers
-	Name *JTypeName
+	modifiers   *JModifiers
+	Name        *JTypeName
 	type_params []JObject
-	extends []*JTypeName
-	Body []JObject
+	extends     []*JTypeName
+	Body        []JObject
 }
 
 func NewJInterfaceDecl(modifiers *JModifiers, name *JTypeName,
@@ -529,13 +529,13 @@ func NewJInterfaceDecl(modifiers *JModifiers, name *JTypeName,
 }
 
 type JInterfaceMethodDecl struct {
-	modifiers *JModifiers
-	type_params []JObject
-	TypeSpec *JReferenceType
-	Name string
+	modifiers    *JModifiers
+	type_params  []JObject
+	TypeSpec     *JReferenceType
+	Name         string
 	FormalParams []*JFormalParameter
-	dims int
-	throws []*JTypeName
+	dims         int
+	throws       []*JTypeName
 }
 
 func NewJInterfaceMethodDecl(formal_params []*JFormalParameter, dims int,
@@ -545,7 +545,7 @@ func NewJInterfaceMethodDecl(formal_params []*JFormalParameter, dims int,
 }
 
 func (j *JInterfaceMethodDecl) SetModifiers(modifiers *JModifiers) {
-       j.modifiers = modifiers
+	j.modifiers = modifiers
 }
 
 func (j *JInterfaceMethodDecl) SetName(name string) {
@@ -569,7 +569,7 @@ func (j *JInterfaceMethodDecl) SetTypeParameters(type_params []JObject) {
 
 type JJumpToLabel struct {
 	IsContinue bool
-	Label string
+	Label      string
 }
 
 func NewJJumpToLabel(token int, label string) *JJumpToLabel {
@@ -577,7 +577,7 @@ func NewJJumpToLabel(token int, label string) *JJumpToLabel {
 	if token == CONTINUE {
 		is_continue = true
 	} else if token != BREAK {
-		panic(fmt.Sprintf("JJumpToLabel token #%d is not BREAK(#%d)" +
+		panic(fmt.Sprintf("JJumpToLabel token #%d is not BREAK(#%d)"+
 			" or CONTINUE(#%d)", token, BREAK, CONTINUE))
 	}
 
@@ -586,7 +586,7 @@ func NewJJumpToLabel(token int, label string) *JJumpToLabel {
 
 type JKeyword struct {
 	Token int
-	Name string
+	Name  string
 }
 
 func NewJKeyword(token int, name string) *JKeyword {
@@ -599,7 +599,7 @@ func NewJKeyword(token int, name string) *JKeyword {
 
 type JLabeledStatement struct {
 	Label string
-	Stmt JObject
+	Stmt  JObject
 }
 
 func NewJLabeledStatement(label string, stmt JObject) *JLabeledStatement {
@@ -626,8 +626,8 @@ func NewJLiteral(text string) *JLiteral {
 
 type JLocalVariableDecl struct {
 	Modifiers *JModifiers
-	TypeSpec *JReferenceType
-	Vars []*JVariableDecl
+	TypeSpec  *JReferenceType
+	Vars      []*JVariableDecl
 }
 
 func NewJLocalVariableDecl(modifiers *JModifiers, typespec *JReferenceType,
@@ -637,11 +637,12 @@ func NewJLocalVariableDecl(modifiers *JModifiers, typespec *JReferenceType,
 }
 
 type JMethodAccess struct {
-	NameObj JObject
-	NameKey *JKeyword
+	NameObj  JObject
+	NameKey  *JKeyword
 	NameType *JTypeName
-	Method string
-	ArgList []JObject
+	Method   string
+	ArgList  []JObject
+	Fixed    bool
 }
 
 func NewJMethodAccessComplex(obj JObject, name string,
@@ -652,11 +653,11 @@ func NewJMethodAccessComplex(obj JObject, name string,
 		panic("Method name cannot be empty")
 	}
 
-	return &JMethodAccess{NameObj: obj, Method: name, ArgList: arglist}
+	return &JMethodAccess{NameObj: obj, Method: name, ArgList: arglist, Fixed: false}
 }
 
 func NewJMethodAccessKeyword(token int, name string, arglist []JObject) *JMethodAccess {
-	return &JMethodAccess{NameKey: NewJKeyword(token, name), ArgList: arglist}
+	return &JMethodAccess{NameKey: NewJKeyword(token, name), ArgList: arglist, Fixed: false}
 }
 
 func NewJMethodAccessName(nametyp *JTypeName,
@@ -675,18 +676,18 @@ func NewJMethodAccessName(nametyp *JTypeName,
 		class = nametyp.NotLast()
 	}
 
-	return &JMethodAccess{NameType: class, Method: name, ArgList: arglist}
+	return &JMethodAccess{NameType: class, Method: name, ArgList: arglist, Fixed: false}
 }
 
 type JMethodDecl struct {
-	Modifiers *JModifiers
-	type_params []JObject
-	TypeSpec *JReferenceType
-	Name string
+	Modifiers    *JModifiers
+	type_params  []JObject
+	TypeSpec     *JReferenceType
+	Name         string
 	FormalParams []*JFormalParameter
-	dims int
-	throws []*JTypeName
-	Block *JBlock
+	dims         int
+	throws       []*JTypeName
+	Block        *JBlock
 }
 
 func NewJMethodDecl(formal_params []*JFormalParameter, dims int,
@@ -696,7 +697,7 @@ func NewJMethodDecl(formal_params []*JFormalParameter, dims int,
 }
 
 func (j *JMethodDecl) SetModifiers(modifiers *JModifiers) {
-       j.Modifiers = modifiers
+	j.Modifiers = modifiers
 }
 
 func (j *JMethodDecl) SetName(name string) {
@@ -716,22 +717,22 @@ func (j *JMethodDecl) SetTypeParameters(type_params []JObject) {
 }
 
 const (
-	ModPublic = 0x1
-	modProtected = 0x2
-	ModPrivate = 0x4
-	modAbstract = 0x8
-	ModFinal = 0x10
-	ModStatic = 0x20
-	modTransient = 0x40
-	modVolatile = 0x80
-	modNative = 0x100
+	ModPublic       = 0x1
+	ModProtected    = 0x2
+	ModPrivate      = 0x4
+	modAbstract     = 0x8
+	ModFinal        = 0x10
+	ModStatic       = 0x20
+	modTransient    = 0x40
+	modVolatile     = 0x80
+	modNative       = 0x100
 	modSynchronized = 0x200
-	modMax = modSynchronized
+	modMax          = modSynchronized
 )
 
 type JModifiers struct {
 	annotations []*JAnnotation
-	mod_bits int
+	mod_bits    int
 }
 
 func NewJModifiers(name string, annotation *JAnnotation) *JModifiers {
@@ -756,17 +757,28 @@ func (j *JModifiers) AddAnnotation(annotation *JAnnotation) *JModifiers {
 
 func (j *JModifiers) AddModifier(name string) *JModifiers {
 	switch name {
-	case "public": j.mod_bits |= ModPublic
-	case "protected": j.mod_bits |= modProtected
-	case "private": j.mod_bits |= ModPrivate
-	case "abstract": j.mod_bits |= modAbstract
-	case "final": j.mod_bits |= ModFinal
-	case "static": j.mod_bits |= ModStatic
-	case "transient": j.mod_bits |= modTransient
-	case "volatile": j.mod_bits |= modVolatile
-	case "native": j.mod_bits |= modNative
-	case "synchronized": j.mod_bits |= modSynchronized
-	default: ReportError(fmt.Sprintf("Unknown modifier \"%s\"", name))
+	case "public":
+		j.mod_bits |= ModPublic
+	case "protected":
+		j.mod_bits |= ModProtected
+	case "private":
+		j.mod_bits |= ModPrivate
+	case "abstract":
+		j.mod_bits |= modAbstract
+	case "final":
+		j.mod_bits |= ModFinal
+	case "static":
+		j.mod_bits |= ModStatic
+	case "transient":
+		j.mod_bits |= modTransient
+	case "volatile":
+		j.mod_bits |= modVolatile
+	case "native":
+		j.mod_bits |= modNative
+	case "synchronized":
+		j.mod_bits |= modSynchronized
+	default:
+		ReportError(fmt.Sprintf("Unknown modifier \"%s\"", name))
 	}
 
 	return j
@@ -796,18 +808,28 @@ func (j *JModifiers) String() string {
 
 func (j *JModifiers) writeModifiers(out io.Writer) {
 	for m := 0x1; m <= modMax; m <<= 1 {
-		if j.mod_bits & m == m {
+		if j.mod_bits&m == m {
 			switch m {
-			case ModPublic: io.WriteString(out, "public ")
-			case modProtected: io.WriteString(out, "protected ")
-			case ModPrivate: io.WriteString(out, "private ")
-			case modAbstract: io.WriteString(out, "abstract ")
-			case ModFinal: io.WriteString(out, "final ")
-			case ModStatic: io.WriteString(out, "static ")
-			case modTransient: io.WriteString(out, "transient ")
-			case modVolatile: io.WriteString(out, "volatile ")
-			case modNative: io.WriteString(out, "native ")
-			case modSynchronized: io.WriteString(out, "synchronized ")
+			case ModPublic:
+				io.WriteString(out, "public ")
+			case ModProtected:
+				io.WriteString(out, "protected ")
+			case ModPrivate:
+				io.WriteString(out, "private ")
+			case modAbstract:
+				io.WriteString(out, "abstract ")
+			case ModFinal:
+				io.WriteString(out, "final ")
+			case ModStatic:
+				io.WriteString(out, "static ")
+			case modTransient:
+				io.WriteString(out, "transient ")
+			case modVolatile:
+				io.WriteString(out, "volatile ")
+			case modNative:
+				io.WriteString(out, "native ")
+			case modSynchronized:
+				io.WriteString(out, "synchronized ")
 			}
 		}
 	}
@@ -815,7 +837,7 @@ func (j *JModifiers) writeModifiers(out io.Writer) {
 
 type JNameDotObject struct {
 	Name *JTypeName
-	Obj JObject
+	Obj  JObject
 }
 
 func NewJNameDotObject(name *JTypeName, obj JObject) *JNameDotObject {
@@ -829,7 +851,7 @@ func NewJNameDotObject(name *JTypeName, obj JObject) *JNameDotObject {
 }
 
 type JObjectDotName struct {
-	Obj JObject
+	Obj  JObject
 	Name *JTypeName
 }
 
@@ -864,8 +886,8 @@ func NewJParens(expr JObject) *JParens {
 }
 
 type JProgramFile struct {
-	Pkg *JPackageStmt
-	Imports []JObject
+	Pkg       *JPackageStmt
+	Imports   []JObject
 	TypeDecls []JObject
 }
 
@@ -888,9 +910,9 @@ func NewJProgramFile(pobj JObject, imports []JObject,
 }
 
 type JReferenceType struct {
-	Name *JTypeName
+	Name     *JTypeName
 	TypeArgs []*JTypeArgument
-	Dims int
+	Dims     int
 }
 
 func NewJReferenceType(name *JTypeName, obj_args []JObject,
@@ -916,7 +938,7 @@ func NewJReferenceType(name *JTypeName, obj_args []JObject,
 
 type JSimpleStatement struct {
 	Keyword *JKeyword
-	Object JObject
+	Object  JObject
 }
 
 func NewJSimpleStatement(keyword *JKeyword, object JObject) *JSimpleStatement {
@@ -924,7 +946,7 @@ func NewJSimpleStatement(keyword *JKeyword, object JObject) *JSimpleStatement {
 }
 
 type JSwitch struct {
-	Expr JObject
+	Expr   JObject
 	Groups []*JSwitchGroup
 }
 
@@ -950,7 +972,7 @@ func NewJSwitch(expr JObject, grouplist []JObject) *JSwitch {
 
 type JSwitchGroup struct {
 	Labels []*JSwitchLabel
-	Stmts []JObject
+	Stmts  []JObject
 }
 
 func NewJSwitchGroup(labellist []JObject, stmtlist []JObject) *JSwitchGroup {
@@ -974,8 +996,8 @@ func NewJSwitchGroup(labellist []JObject, stmtlist []JObject) *JSwitchGroup {
 }
 
 type JSwitchLabel struct {
-	Name string
-	Expr JObject
+	Name      string
+	Expr      JObject
 	IsDefault bool
 }
 
@@ -994,7 +1016,7 @@ func NewJSwitchLabel(name string, expr JObject, is_default bool) *JSwitchLabel {
 }
 
 type JSynchronized struct {
-	Expr JObject
+	Expr  JObject
 	Block *JBlock
 }
 
@@ -1007,7 +1029,7 @@ func NewJSynchronized(expr JObject, block *JBlock) *JSynchronized {
 }
 
 type JTry struct {
-	Block *JBlock
+	Block   *JBlock
 	Catches []*JCatch
 	Finally *JBlock
 }
@@ -1041,7 +1063,7 @@ const (
 
 type JTypeArgument struct {
 	TypeSpec *JReferenceType
-	Ts_type int
+	Ts_type  int
 }
 
 func NewJTypeArgument(typespec *JReferenceType, ts_type int) *JTypeArgument {
@@ -1050,7 +1072,7 @@ func NewJTypeArgument(typespec *JReferenceType, ts_type int) *JTypeArgument {
 
 type JTypeName struct {
 	is_primitive bool
-	names []string
+	Names        []string
 }
 
 func NewJTypeName(name string, is_primitive bool) *JTypeName {
@@ -1061,26 +1083,26 @@ func NewJTypeName(name string, is_primitive bool) *JTypeName {
 	names := make([]string, 1)
 	names[0] = name
 
-	return &JTypeName{names: names, is_primitive: is_primitive}
+	return &JTypeName{Names: names, is_primitive: is_primitive}
 }
 
 func (qn *JTypeName) Add(name string) {
 	if qn.is_primitive {
 		panic(fmt.Sprintf("Cannot add \"%s\" to primitive type \"%s\"",
-			name, qn.names[0]))
+			name, qn.Names[0]))
 	} else if name == "" {
 		panic(fmt.Sprintf("Cannot add empty string to \"%s\"", qn.String()))
 	}
 
-	qn.names = append(qn.names, name)
+	qn.Names = append(qn.Names, name)
 }
 
 func (qn *JTypeName) FirstType() string {
-	return qn.names[0]
+	return qn.Names[0]
 }
 
 func (qn *JTypeName) IsDotted() bool {
-	return !qn.is_primitive && len(qn.names) > 1
+	return !qn.is_primitive && len(qn.Names) > 1
 }
 
 func (qn *JTypeName) IsPrimitive() bool {
@@ -1088,49 +1110,49 @@ func (qn *JTypeName) IsPrimitive() bool {
 }
 
 func (qn *JTypeName) LastType() string {
-	return qn.names[len(qn.names)-1]
+	return qn.Names[len(qn.Names)-1]
 }
 
 func (qn *JTypeName) NotFirst() *JTypeName {
-	if len(qn.names) == 1 {
+	if len(qn.Names) == 1 {
 		panic(fmt.Sprintf("Only one name found in %v", qn))
 	} else if qn.is_primitive {
 		panic(fmt.Sprintf("Primitive type %v has only one name", qn))
 	}
 
-	return &JTypeName{names: qn.names[1:], is_primitive: false}
+	return &JTypeName{Names: qn.Names[1:], is_primitive: false}
 }
 
 func (qn *JTypeName) NotLast() *JTypeName {
-	if len(qn.names) == 1 {
+	if len(qn.Names) == 1 {
 		panic(fmt.Sprintf("Only one name found in %v", qn))
 	} else if qn.is_primitive {
 		panic(fmt.Sprintf("Primitive type %v has only one name", qn))
 	}
 
-	return &JTypeName{names: qn.names[0:len(qn.names)-1], is_primitive: false}
+	return &JTypeName{Names: qn.Names[0 : len(qn.Names)-1], is_primitive: false}
 }
 
 func (qn *JTypeName) PackageString() string {
-	if len(qn.names) == 1 {
-		return qn.names[0]
+	if len(qn.Names) == 1 {
+		return qn.Names[0]
 	} else if qn.is_primitive {
 		panic(fmt.Sprintf("Primitive type %v is not a package", qn))
 	}
 
-	return strings.Join(qn.names[:len(qn.names)-1], ".")
+	return strings.Join(qn.Names[:len(qn.Names)-1], ".")
 }
 
 func (qn *JTypeName) String() string {
-	if len(qn.names) == 1 {
-		return qn.names[0]
+	if len(qn.Names) == 1 {
+		return qn.Names[0]
 	}
 
-	return strings.Join(qn.names, ".")
+	return strings.Join(qn.Names, ".")
 }
 
 type JTypeParameter struct {
-	name string
+	name   string
 	bounds []JObject
 }
 
@@ -1139,9 +1161,9 @@ func NewJTypeParameter(name string, bounds []JObject) *JTypeParameter {
 }
 
 type JUnaryExpr struct {
-	Op string
-	Obj JObject
-	is_prefix bool
+	Op       string
+	Obj      JObject
+	IsPrefix bool
 }
 
 func NewJUnaryExpr(op string, obj JObject, is_prefix bool) *JUnaryExpr {
@@ -1151,15 +1173,15 @@ func NewJUnaryExpr(op string, obj JObject, is_prefix bool) *JUnaryExpr {
 		ReportError("UnaryExpr object cannot be nil")
 	}
 
-	return &JUnaryExpr{Op: op, Obj: obj, is_prefix: is_prefix}
+	return &JUnaryExpr{Op: op, Obj: obj, IsPrefix: is_prefix}
 }
 
 type JVariableDecl struct {
 	Modifiers *JModifiers
-	TypeSpec *JReferenceType
-	Name string
-	Dims int
-	Init *JVariableInit
+	TypeSpec  *JReferenceType
+	Name      string
+	Dims      int
+	Init      *JVariableInit
 }
 
 func NewJVariableDecl(name string, dims int,
@@ -1168,11 +1190,11 @@ func NewJVariableDecl(name string, dims int,
 }
 
 func (j *JVariableDecl) SetInit(init *JVariableInit) {
-       j.Init = init
+	j.Init = init
 }
 
 func (j *JVariableDecl) SetModifiers(modifiers *JModifiers) {
-       j.Modifiers = modifiers
+	j.Modifiers = modifiers
 }
 
 func (j *JVariableDecl) SetType(typespec *JReferenceType) {
@@ -1180,7 +1202,7 @@ func (j *JVariableDecl) SetType(typespec *JReferenceType) {
 }
 
 type JVariableInit struct {
-	Expr JObject
+	Expr      JObject
 	ArrayList []*JVariableInit
 }
 
@@ -1195,8 +1217,8 @@ func NewJVariableInit(expr JObject, arraylist []*JVariableInit) *JVariableInit {
 }
 
 type JWhile struct {
-	Expr JObject
-	Stmt JObject
+	Expr      JObject
+	Stmt      JObject
 	IsDoWhile bool
 }
 

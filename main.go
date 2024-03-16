@@ -159,7 +159,7 @@ func parseJava(path string, cfg *parser.Config, dirPath string,
 	}
 }
 
-func main() {
+func main1() {
 	var configPath string
 	flag.StringVar(&configPath, "config", "", "Config file")
 

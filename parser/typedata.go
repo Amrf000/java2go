@@ -33,25 +33,43 @@ const (
 	VT_MAP
 	VT_INTERFACE
 	VT_CLASS
+	VT_INT_P
 )
 
 func (vt VarType) String() string {
 	switch vt {
-	case VT_VOID: return "void"
-	case VT_BOOL: return "bool"
-	case VT_BYTE: return "byte"
-	case VT_CHAR: return "char"
-	case VT_INT16: return "int16"
-	case VT_INT: return "int"
-	case VT_INT64: return "int64"
-	case VT_FLOAT32: return "float32"
-	case VT_FLOAT64: return "float64"
-	case VT_STRING: return "string"
-	case VT_GENERIC_OBJECT: return "{}interface"
-	case VT_ARRAY: return "??array??"
-	case VT_MAP: return "??map??"
-	case VT_INTERFACE: return "??interface??"
-	case VT_CLASS: return "??class??"
+	case VT_VOID:
+		return "void"
+	case VT_BOOL:
+		return "bool"
+	case VT_BYTE:
+		return "byte"
+	case VT_CHAR:
+		return "char"
+	case VT_INT16:
+		return "int16"
+	case VT_INT:
+		return "int"
+	case VT_INT64:
+		return "int64"
+	case VT_FLOAT32:
+		return "float32"
+	case VT_FLOAT64:
+		return "float64"
+	case VT_STRING:
+		return "string"
+	case VT_GENERIC_OBJECT:
+		return "{}interface"
+	case VT_ARRAY:
+		return "??array??"
+	case VT_MAP:
+		return "??map??"
+	case VT_INTERFACE:
+		return "??interface??"
+	case VT_CLASS:
+		return "??class??"
+	case VT_INT_P:
+		return "*int"
 	}
 
 	return fmt.Sprintf("??VarType#%d??", vt)
@@ -63,24 +81,25 @@ type TypeDictionary interface {
 }
 
 type TypeData struct {
-	vtype VarType
-	vclass string
+	Vtype      VarType
+	vclass     string
 	array_dims int
-	type1 *TypeData
-	type2 *TypeData
+	type1      *TypeData
+	type2      *TypeData
 }
 
-var genericObject = &TypeData{vtype: VT_GENERIC_OBJECT}
-var voidType = &TypeData{vtype: VT_VOID}
-var boolType = &TypeData{vtype: VT_BOOL}
-var byteType = &TypeData{vtype: VT_BYTE}
-var charType = &TypeData{vtype: VT_CHAR}
-var shortType = &TypeData{vtype: VT_INT16}
-var intType = &TypeData{vtype: VT_INT}
-var longType = &TypeData{vtype: VT_INT64}
-var floatType = &TypeData{vtype: VT_FLOAT32}
-var doubleType = &TypeData{vtype: VT_FLOAT64}
-var stringType = &TypeData{vtype: VT_STRING}
+var genericObject = &TypeData{Vtype: VT_GENERIC_OBJECT}
+var voidType = &TypeData{Vtype: VT_VOID}
+var boolType = &TypeData{Vtype: VT_BOOL}
+var byteType = &TypeData{Vtype: VT_BYTE}
+var charType = &TypeData{Vtype: VT_CHAR}
+var shortType = &TypeData{Vtype: VT_INT16}
+var intType = &TypeData{Vtype: VT_INT}
+var longType = &TypeData{Vtype: VT_INT64}
+var floatType = &TypeData{Vtype: VT_FLOAT32}
+var doubleType = &TypeData{Vtype: VT_FLOAT64}
+var stringType = &TypeData{Vtype: VT_STRING}
+var intTypeP = &TypeData{Vtype: VT_INT_P}
 
 func NewTypeDataPrimitive(typename string, dims int) *TypeData {
 	var noDimType *TypeData
@@ -105,6 +124,8 @@ func NewTypeDataPrimitive(typename string, dims int) *TypeData {
 		noDimType = doubleType
 	case "string":
 		noDimType = stringType
+	case "*int":
+		noDimType = intTypeP
 	default:
 		panic(fmt.Sprintf("Unrecognized primitive type %v", typename))
 	}
@@ -113,7 +134,7 @@ func NewTypeDataPrimitive(typename string, dims int) *TypeData {
 		return noDimType
 	}
 
-	return &TypeData{vtype: VT_ARRAY, type1: noDimType, array_dims: dims}
+	return &TypeData{Vtype: VT_ARRAY, type1: noDimType, array_dims: dims}
 }
 
 func NewTypeDataObject(tdict TypeDictionary, typename string, dims int) *TypeData {
@@ -129,9 +150,9 @@ func NewTypeDataObject(tdict TypeDictionary, typename string, dims int) *TypeDat
 		vtype = VT_CLASS
 	}
 
-	td := &TypeData{vtype: vtype, vclass: imptype}
+	td := &TypeData{Vtype: vtype, vclass: imptype}
 	if dims > 0 {
-		return &TypeData{vtype: VT_ARRAY, array_dims: dims, type1: td}
+		return &TypeData{Vtype: VT_ARRAY, array_dims: dims, type1: td}
 	}
 
 	return td
@@ -146,6 +167,7 @@ var identInt64 = ast.NewIdent("int64")
 var identFloat32 = ast.NewIdent("float32")
 var identFloat64 = ast.NewIdent("float64")
 var identString = ast.NewIdent("string")
+var identIntP = ast.NewIdent("*int")
 
 func (vdata *TypeData) Decl() ast.Expr {
 	return vdata.Expr()
@@ -156,7 +178,7 @@ func (vdata *TypeData) Equals(odata *TypeData) bool {
 		return false
 	}
 
-	if vdata.vtype != odata.vtype || vdata.array_dims != odata.array_dims {
+	if vdata.Vtype != odata.Vtype || vdata.array_dims != odata.array_dims {
 		return false
 	}
 
@@ -186,7 +208,7 @@ func (vdata *TypeData) Equals(odata *TypeData) bool {
 }
 
 func (vdata *TypeData) Expr() ast.Expr {
-	if vdata.vtype != VT_ARRAY {
+	if vdata.Vtype != VT_ARRAY {
 		typename, is_nil := vdata.TypeName()
 		if is_nil {
 			return nil
@@ -208,15 +230,15 @@ func (vdata *TypeData) Expr() ast.Expr {
 }
 
 func (vdata *TypeData) IsClass(name string) bool {
-	return vdata.vtype == VT_CLASS && vdata.vclass == name
+	return vdata.Vtype == VT_CLASS && vdata.vclass == name
 }
 
 func (vdata *TypeData) isObject() bool {
-	return vdata.vtype == VT_INTERFACE || vdata.vtype == VT_CLASS
+	return vdata.Vtype == VT_INTERFACE || vdata.Vtype == VT_CLASS
 }
 
 func (vdata *TypeData) Name() string {
-	switch vdata.vtype {
+	switch vdata.Vtype {
 	case VT_ARRAY:
 		tstr := "array"
 		if vdata.type1 == nil {
@@ -256,11 +278,11 @@ func (vdata *TypeData) Name() string {
 		break
 	}
 
-	return vdata.vtype.String()
+	return vdata.Vtype.String()
 }
 
 func (vdata *TypeData) String() string {
-	switch vdata.vtype {
+	switch vdata.Vtype {
 	case VT_ARRAY:
 		var tstr string
 		if vdata.type1 == nil {
@@ -298,11 +320,11 @@ func (vdata *TypeData) String() string {
 		break
 	}
 
-	return vdata.vtype.String()
+	return vdata.Vtype.String()
 }
 
 func (vdata *TypeData) TypeName() (ast.Expr, bool) {
-	switch vdata.vtype {
+	switch vdata.Vtype {
 	case VT_VOID:
 		return nil, true
 	case VT_BOOL:
@@ -333,9 +355,11 @@ func (vdata *TypeData) TypeName() (ast.Expr, bool) {
 		return ast.NewIdent(vdata.vclass), false
 	case VT_CLASS:
 		return &ast.StarExpr{X: ast.NewIdent(vdata.vclass)}, false
+	case VT_INT_P:
+		return identIntP, false
 	default:
 		break
 	}
 
-	panic(fmt.Sprintf("Unknown VarType %v", vdata.vtype))
+	panic(fmt.Sprintf("Unknown VarType %v", vdata.Vtype))
 }
